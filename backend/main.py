@@ -20,7 +20,7 @@ import asyncio
 import sys
 import time
 from pathlib import Path
-from typing import Any
+from typing import Any, Optional
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -79,12 +79,12 @@ class ChatRequest(BaseModel):
 
 
 class SourceDoc(BaseModel):
-    frame_file: str | None = None
-    timestamp_seconds: float | None = None
-    description: str | None = None
-    start_time: float | None = None
-    end_time: float | None = None
-    text: str | None = None
+    frame_file: Optional[str] = None
+    timestamp_seconds: Optional[float] = None
+    description: Optional[str] = None
+    start_time: Optional[float] = None
+    end_time: Optional[float] = None
+    text: Optional[str] = None
 
 
 class ChatResponse(BaseModel):
@@ -97,11 +97,11 @@ class ChatResponse(BaseModel):
 
 class VideoInfo(BaseModel):
     video_id: str
-    filename: str | None = None
-    category: str | None = None
-    duration_seconds: float | None = None
-    frame_count: int | None = None
-    transcript_segments: int | None = None
+    filename: Optional[str] = None
+    category: Optional[str] = None
+    duration_seconds: Optional[float] = None
+    frame_count: Optional[int] = None
+    transcript_segments: Optional[int] = None
 
 
 class FrameInfo(BaseModel):

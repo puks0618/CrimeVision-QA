@@ -38,6 +38,10 @@ def describe_frame(frame_path: str) -> str:
         print(f"[Vision] Frame not found: {frame_path}")
         return "[INVALID FRAME]"
 
+    # Detect mime type from extension (dataset uses PNG frames)
+    ext = Path(frame_path).suffix.lower()
+    mime_type = "image/png" if ext == ".png" else "image/jpeg"
+
     with open(frame_path, "rb") as f:
         b64_data = base64.b64encode(f.read()).decode("utf-8")
 
@@ -51,7 +55,7 @@ def describe_frame(frame_path: str) -> str:
                     {
                         "type": "image_url",
                         "image_url": {
-                            "url": f"data:image/jpeg;base64,{b64_data}"
+                            "url": f"data:{mime_type};base64,{b64_data}"
                         },
                     },
                 ],

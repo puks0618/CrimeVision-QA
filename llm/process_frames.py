@@ -28,14 +28,34 @@ _ZERO_VECTOR = [0.0] * 1024
 
 
 def _parse_timestamp(frame_file: str) -> float:
-    """Extract timestamp in seconds from filename like 'frame_0015_t30.0s.jpg'."""
+    """Extract timestamp in seconds from filename.
+
+    Supports:
+    - Original format: 'frame_0015_t30.0s.jpg'   -> 30.0
+    - Kaggle UCF format: 'Abuse001_x264_900.png'  -> 9.0 (frame_num / 100)
+    """
     match = re.search(r"_t([\d.]+)s", frame_file)
-    return float(match.group(1)) if match else 0.0
+    if match:
+        return float(match.group(1))
+    # Kaggle format: last numeric segment is frame index (10fps = every 10 frames)
+    kaggle_match = re.search(r"_(\d+)\.png$", frame_file)
+    if kaggle_match:
+        frame_idx = int(kaggle_match.group(1))
+        return round(frame_idx / 10.0, 1)  # dataset sampled at ~10fps
+    return 0.0
 
 
 def _parse_frame_number(frame_file: str) -> int:
-    match = re.search(r"frame_(\d+)_", frame_file)
-    return int(match.group(1)) if match else 0
+    """Extract frame number, supports both original and kaggle naming."""
+    # Original: frame_0015_t30.0s.jpg
+    orig = re.search(r"frame_(\d+)_", frame_file)
+    if orig:
+        return int(orig.group(1))
+    # Kaggle: Abuse001_x264_900.png — last number is frame index
+    kaggle = re.search(r"_(\d+)\.png$", frame_file)
+    if kaggle:
+        return int(kaggle.group(1))
+    return 0
 
 
 def process_video_frames(
@@ -54,14 +74,17 @@ def process_video_frames(
     if not os.path.isdir(frames_dir):
         raise FileNotFoundError(f"Frames directory not found: {frames_dir}")
 
-    # Gather all JPG frame files, sorted by frame number
+    # Gather all image frame files (JPG or PNG), sorted by frame number
     frame_files = sorted(
-        [f for f in os.listdir(frames_dir) if f.lower().endswith(".jpg")],
+        [
+            f for f in os.listdir(frames_dir)
+            if f.lower().endswith(".jpg") or f.lower().endswith(".png")
+        ],
         key=lambda f: _parse_frame_number(f),
     )
 
     if not frame_files:
-        print(f"[Process] No frames found in {frames_dir}")
+        print(f"[Process] No frames (jpg/png) found in {frames_dir}")
         return {"video_id": video_id, "frames_processed": 0, "errors": 0}
 
     print(f"[Process] Processing {len(frame_files)} frames for video '{video_id}'")
