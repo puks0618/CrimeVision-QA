@@ -108,25 +108,25 @@ else:
 if GEMINI_API_KEY:
     REASONER_PROVIDER = "gemini"
 else:
-    print("[CONFIG] GEMINI_API_KEY not set -> using Fireworks Qwen3-30B for reasoning")
+    print("[CONFIG] GEMINI_API_KEY not set -> using Fireworks Llama-3.3-70B for reasoning")
     REASONER_PROVIDER = "fireworks"
 
 # ---------------------------------------------------------------------------
-# 7. Model IDs — cheapest options that work for each task
-#    Vision:   qwen2p5-vl-7b  ($0.20/M  vs 32b's $0.90/M  — 78% cheaper)
-#    Router:   llama-v3p1-8b  ($0.20/M  vs deepseek's $1.12/M — 87% cheaper)
-#    Reasoner: qwen3-30b-a3b  ($0.26/M  vs llama-70b's $0.90/M — 71% cheaper)
-#    Embed:    gte-large       ($0.008/M — already cheapest, no change)
+# 7. Model IDs — verified available on this Fireworks account
+#    Vision:   deepseek-v3p1 — only model on this account with image support
+#    Router:   qwen3-8b      — cheapest chat model available ($0.20/M)
+#    Reasoner: llama-v3p3-70b — best quality chat model available
+#    Embed:    gte-large      — cheapest embedding model
 # ---------------------------------------------------------------------------
-FIREWORKS_VISION_MODEL = "accounts/fireworks/models/qwen2p5-vl-7b-instruct"
+FIREWORKS_VISION_MODEL = "accounts/fireworks/models/deepseek-v3p1"
 FIREWORKS_WHISPER_MODEL = "whisper-v3"
 FIREWORKS_WHISPER_ENDPOINT = "https://audio-prod.api.fireworks.ai/v1/audio/transcriptions"
 FIREWORKS_EMBED_MODEL = "thenlper/gte-large"
-FIREWORKS_ROUTER_MODEL = "accounts/fireworks/models/llama-v3p1-8b-instruct"
-FIREWORKS_REASONER_MODEL = "accounts/fireworks/models/qwen3-30b-a3b"
+FIREWORKS_ROUTER_MODEL = "accounts/fireworks/models/qwen3-8b"
+FIREWORKS_REASONER_MODEL = "accounts/fireworks/models/llama-v3p3-70b-instruct"
 FIREWORKS_API_BASE = "https://api.fireworks.ai/inference/v1"
 
-VOYAGE_EMBED_MODEL = "voyage-multimodal-3"
+VOYAGE_EMBED_MODEL = "voyage-3-large"
 GEMINI_REASONER_MODEL = "gemini-2.5-flash"
 
 # ---------------------------------------------------------------------------
@@ -137,7 +137,7 @@ print(f"  MongoDB:    Connected ({MONGODB_URI.split('@')[-1].split('/')[0]})")
 print(f"  Embeddings: {EMBED_PROVIDER.capitalize()}"
       f" ({'Voyage ' + VOYAGE_EMBED_MODEL if EMBED_PROVIDER == 'voyage' else 'Fireworks ' + FIREWORKS_EMBED_MODEL})")
 print(f"  Reasoner:   {REASONER_PROVIDER.capitalize()}"
-      f" ({'Gemini ' + GEMINI_REASONER_MODEL if REASONER_PROVIDER == 'gemini' else 'Fireworks Qwen3-30B'})")
+      f" ({'Gemini ' + GEMINI_REASONER_MODEL if REASONER_PROVIDER == 'gemini' else 'Fireworks Llama-3.3-70B'})")
 print(f"  Vision:     Fireworks {FIREWORKS_VISION_MODEL.split('/')[-1]}")
 print(f"  Audio:      Fireworks {FIREWORKS_WHISPER_MODEL}")
 print(f"  Router:     Fireworks {FIREWORKS_ROUTER_MODEL.split('/')[-1]}")
