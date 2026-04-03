@@ -1,0 +1,73 @@
+[
+  {
+    "query_id": "q001",
+    "query": "What is happening in the video?",
+    "expected_intent": "FIND_FRAME",
+    "video_id": null,
+    "ground_truth": "Describes a criminal incident captured on surveillance camera."
+  },
+  {
+    "query_id": "q002",
+    "query": "What did the person say?",
+    "expected_intent": "FIND_AUDIO",
+    "video_id": null,
+    "ground_truth": "Audio transcript segment with spoken words."
+  },
+  {
+    "query_id": "q003",
+    "query": "Describe what happened between 0:30 and 1:00",
+    "expected_intent": "SUMMARIZE_WINDOW",
+    "video_id": null,
+    "expected_time_range": {"start": 30.0, "end": 60.0},
+    "ground_truth": "Events occurring in the 30-60 second time window."
+  },
+  {
+    "query_id": "q004",
+    "query": "How many people are in the video?",
+    "expected_intent": "COUNT",
+    "video_id": null,
+    "ground_truth": "A number describing the count of people."
+  },
+  {
+    "query_id": "q005",
+    "query": "What color is the vehicle?",
+    "expected_intent": "FIND_FRAME",
+    "video_id": null,
+    "ground_truth": "Description of vehicle color."
+  },
+  {
+    "query_id": "q006",
+    "query": "Describe the suspect's appearance",
+    "expected_intent": "FIND_FRAME",
+    "video_id": null,
+    "ground_truth": "Physical description: clothing, build, hair, etc."
+  },
+  {
+    "query_id": "q007",
+    "query": "What time did the incident start?",
+    "expected_intent": "FIND_FRAME",
+    "video_id": null,
+    "ground_truth": "Timestamp of when the incident begins."
+  },
+  {
+    "query_id": "q008",
+    "query": "Was there any weapon visible?",
+    "expected_intent": "FIND_FRAME",
+    "video_id": null,
+    "ground_truth": "Yes/No answer with frame reference if weapon visible."
+  },
+  {
+    "query_id": "q009",
+    "query": "Give me a complete timeline of events",
+    "expected_intent": "FIND_FRAME",
+    "video_id": null,
+    "ground_truth": "Chronological list of events with timestamps."
+  },
+  {
+    "query_id": "q010",
+    "query": "What did the officer say?",
+    "expected_intent": "FIND_AUDIO",
+    "video_id": null,
+    "ground_truth": "Transcribed speech from audio."
+  }
+]
