@@ -16,7 +16,7 @@ Usage:
 
 import sys
 from pathlib import Path
-from typing import TypedDict
+from typing import Optional, TypedDict
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from llm.config import video_library_col
@@ -39,12 +39,12 @@ class AgentState(TypedDict):
     query: str
     video_id: str
     strategy: str
-    router_output: RouterOutput | None
-    frame_results: list[dict]
-    transcript_results: list[dict]
-    video_metadata: dict | None
+    router_output: Optional[RouterOutput]
+    frame_results: list
+    transcript_results: list
+    video_metadata: Optional[dict]
     iteration: int
-    final_answer: dict | None
+    final_answer: Optional[dict]
 
 
 # ---------------------------------------------------------------------------

@@ -13,6 +13,7 @@ import sys
 import time
 from dataclasses import dataclass, field
 from pathlib import Path
+from typing import Optional
 
 import requests
 
@@ -46,7 +47,7 @@ Example: {{"intent": "FIND_FRAME", "search_query": "person in blue jersey", "tim
 class RouterOutput:
     intent: str
     search_query: str
-    time_range: dict | None = None
+    time_range: Optional[dict] = None
     confidence: float = 0.5
 
 
