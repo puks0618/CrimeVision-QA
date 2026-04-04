@@ -72,6 +72,8 @@ def _parse_router_response(text: str, original_query: str) -> RouterOutput:
 
     Falls back to safe defaults if parsing fails.
     """
+    # Strip <think>...</think> blocks (from thinking models like qwen3-8b)
+    text = re.sub(r"<think>.*?</think>", "", text, flags=re.DOTALL).strip()
     # Strip markdown code fences if present
     text = re.sub(r"```(?:json)?\s*", "", text).strip()
 

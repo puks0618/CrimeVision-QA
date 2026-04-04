@@ -139,11 +139,20 @@ def store_transcript_segments(
             }
         )
 
+    from pymongo import UpdateOne
     stored = 0
     for i in range(0, len(docs), batch_size):
         batch = docs[i : i + batch_size]
-        transcripts_col.insert_many(batch, ordered=False)
-        stored += len(batch)
+        ops = [
+            UpdateOne(
+                {"video_id": d["video_id"], "segment_index": d["segment_index"]},
+                {"$set": d},
+                upsert=True,
+            )
+            for d in batch
+        ]
+        transcripts_col.bulk_write(ops, ordered=False)
+        stored += len(ops)
 
     print(f"[Whisper] Stored {stored} transcript segments for video '{video_id}'")
     return stored

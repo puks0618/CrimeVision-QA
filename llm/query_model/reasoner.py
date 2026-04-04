@@ -32,7 +32,7 @@ _RETRY_DELAYS = [2, 4]
 # ---------------------------------------------------------------------------
 
 _SYSTEM_ZERO_SHOT = """You are a video surveillance analysis assistant for law enforcement.
-Answer the question based ONLY on the provided evidence.
+Answer the question based ONLY on the provided evidence. Be extremely concise and direct (1-2 sentences).
 Always cite specific timestamps (e.g. "at 30.0s") and frame references.
 If the evidence does not contain enough information, say so explicitly — do NOT hallucinate."""
 
@@ -155,6 +155,10 @@ class Reasoner:
         user_message = f"{evidence}\n\nQuestion: {query}"
 
         answer = self._call_llm(system_prompt, user_message)
+
+        # Post-process to provide only the concise final answer if using CoT
+        if "**Answer:**" in answer:
+            answer = answer.split("**Answer:**")[-1].strip()
 
         return {
             "answer": answer,
