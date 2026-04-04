@@ -25,9 +25,17 @@ def semantic_search_frames(
     """Search frame descriptions by semantic similarity.
 
     Returns up to *k* results sorted by descending vector score.
+    Returns [] immediately if no frames exist (avoids API call).
     Each result includes: video_id, frame_file, timestamp_seconds,
     description, category, score.
     """
+    # Short-circuit: skip embedding call if frames collection has no docs for this video
+    filter_check: dict = {}
+    if video_id:
+        filter_check["video_id"] = video_id
+    if frames_col.count_documents(filter_check, limit=1) == 0:
+        return []
+
     query_vec = embedding_service.embed_single(query)
 
     vector_search_stage: dict = {
@@ -66,7 +74,17 @@ def semantic_search_transcripts(
     k: int = 5,
     num_candidates: int = 100,
 ) -> list[dict]:
-    """Search transcript segments by semantic similarity."""
+    """Search transcript segments by semantic similarity.
+
+    Returns [] immediately if no transcripts exist (avoids API call).
+    """
+    # Short-circuit: skip embedding call if transcripts collection is empty
+    filter_check: dict = {}
+    if video_id:
+        filter_check["video_id"] = video_id
+    if transcripts_col.count_documents(filter_check, limit=1) == 0:
+        return []
+
     query_vec = embedding_service.embed_single(query)
 
     vector_search_stage: dict = {
