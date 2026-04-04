@@ -117,15 +117,17 @@ else:
 
 # ---------------------------------------------------------------------------
 # 7. Model IDs — verified available on this Fireworks account
-#    Vision:   deepseek-v3p1 — only model on this account with image support
+#    Vision:   kimi-k2p5     — confirmed VLM with image support (tested)
 #    Router:   qwen3-8b      — cheapest chat model available ($0.20/M)
 #    Reasoner: llama-v3p3-70b — best quality chat model available
-#    Embed:    gte-large      — cheapest embedding model
+#    Embed:    gte-large      — 768-dim! Only used when EMBED_PROVIDER=fireworks
+#                               (MongoDB index must be 768-dim in that case)
 # ---------------------------------------------------------------------------
-FIREWORKS_VISION_MODEL = "accounts/fireworks/models/deepseek-v3p1"
+FIREWORKS_VISION_MODEL = "accounts/fireworks/models/kimi-k2p5"
 FIREWORKS_WHISPER_MODEL = "whisper-v3"
 FIREWORKS_WHISPER_ENDPOINT = "https://audio-prod.api.fireworks.ai/v1/audio/transcriptions"
 FIREWORKS_EMBED_MODEL = "thenlper/gte-large"
+FIREWORKS_EMBED_DIM = 768   # GTE-large outputs 768-dim, NOT 1024!
 FIREWORKS_ROUTER_MODEL = "accounts/fireworks/models/qwen3-8b"
 FIREWORKS_REASONER_MODEL = "accounts/fireworks/models/llama-v3p3-70b-instruct"
 FIREWORKS_API_BASE = "https://api.fireworks.ai/inference/v1"

@@ -123,30 +123,38 @@ def process_video_frames(
             embeddings = [_ZERO_VECTOR] * len(descriptions)
             errors += len(descriptions)
 
-        # --- Step 3: Build and insert MongoDB documents ---
-        docs = []
+        # --- Step 3: Build and upsert MongoDB documents ---
+        from pymongo import UpdateOne
+        ops = []
         for m, desc, emb in zip(meta, descriptions, embeddings):
             if desc in ("[DESCRIPTION UNAVAILABLE]", "[INVALID FRAME]"):
                 errors += 1
-                # Still store the frame so retrieval knows it exists
-                emb = _ZERO_VECTOR
+                continue  # Don't store frames with no description
+            if emb == _ZERO_VECTOR:
+                errors += 1
+                continue  # Don't pollute index with zero-vector frames
 
-            docs.append(
-                {
-                    "video_id": video_id,
-                    "frame_file": m["frame_file"],
-                    "frame_number": m["frame_number"],
-                    "timestamp_seconds": m["timestamp_seconds"],
-                    "description": desc,
-                    "embedding": emb,
-                    "category": category,
-                    "created_at": now,
-                }
+            doc = {
+                "video_id": video_id,
+                "frame_file": m["frame_file"],
+                "frame_number": m["frame_number"],
+                "timestamp_seconds": m["timestamp_seconds"],
+                "description": desc,
+                "embedding": emb,
+                "category": category,
+                "created_at": now,
+            }
+            ops.append(
+                UpdateOne(
+                    {"video_id": video_id, "frame_file": m["frame_file"]},
+                    {"$set": doc},
+                    upsert=True,
+                )
             )
 
-        if docs:
-            frames_col.insert_many(docs, ordered=False)
-            processed += len(docs)
+        if ops:
+            frames_col.bulk_write(ops, ordered=False)
+            processed += len(ops)
 
     # --- Update video_library metadata ---
     video_library_col.update_one(

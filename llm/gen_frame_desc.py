@@ -70,7 +70,7 @@ def describe_frame(frame_path: str) -> str:
         "Content-Type": "application/json",
     }
 
-    for attempt, delay in enumerate(zip(range(_MAX_RETRIES), _RETRY_DELAYS), start=1):
+    for attempt in range(1, _MAX_RETRIES + 1):
         try:
             resp = requests.post(
                 f"{FIREWORKS_API_BASE}/chat/completions",

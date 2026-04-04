@@ -50,12 +50,22 @@ class EmbeddingService:
     # ------------------------------------------------------------------
 
     def embed(self, texts: list[str]) -> list[list[float]]:
-        """Embed a batch of texts. Returns list of 1024-dim float vectors."""
+        """Embed a batch of texts. Returns list of float vectors."""
         if not texts:
             return []
         if self.provider == "voyage":
-            return self._voyage_embed(texts, input_type="document")
-        return self._fireworks_embed(texts)
+            embeddings = self._voyage_embed(texts, input_type="document")
+        else:
+            embeddings = self._fireworks_embed(texts)
+        # Validate dimensions on first batch to catch provider/index mismatches early
+        if embeddings and len(embeddings[0]) != _EMBED_DIM:
+            raise ValueError(
+                f"Embedding dimension mismatch: got {len(embeddings[0])}, "
+                f"expected {_EMBED_DIM}. "
+                f"If using EMBED_PROVIDER=fireworks, GTE-large outputs 768-dim "
+                f"but MongoDB index expects {_EMBED_DIM}-dim."
+            )
+        return embeddings
 
     def embed_single(self, text: str) -> list[float]:
         """Embed a single query text with caching."""
