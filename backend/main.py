@@ -140,10 +140,21 @@ async def chat(request: ChatRequest) -> ChatResponse:
 
     elapsed = round(time.perf_counter() - start_time, 2)
 
+    # Convert any non-serializable MongoDB fields (ObjectId, etc.) in sources
+    raw_sources = result.get("sources", [])
+    clean_sources: list[dict] = []
+    for doc in raw_sources:
+        clean = {
+            k: str(v) if hasattr(v, "__class__") and v.__class__.__name__ == "ObjectId" else v
+            for k, v in doc.items()
+            if k != "_id"  # drop internal Mongo _id
+        }
+        clean_sources.append(clean)
+
     return ChatResponse(
         answer=result["answer"],
         timestamps=result.get("timestamps", []),
-        sources=result.get("sources", []),
+        sources=clean_sources,
         strategy_used=result.get("strategy_used", request.strategy),
         processing_time=elapsed,
     )

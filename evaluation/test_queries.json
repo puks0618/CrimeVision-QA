@@ -1,73 +1,72 @@
 [
   {
     "query_id": "q001",
-    "query": "What is happening in the video?",
+    "query": "What is happening in this video?",
     "expected_intent": "FIND_FRAME",
-    "video_id": null,
-    "ground_truth": "Describes a criminal incident captured on surveillance camera."
+    "video_id": "Abuse001_x264",
+    "ground_truth": "Describes an abuse/assault incident captured on surveillance camera."
   },
   {
     "query_id": "q002",
-    "query": "What did the person say?",
-    "expected_intent": "FIND_AUDIO",
-    "video_id": null,
-    "ground_truth": "Audio transcript segment with spoken words."
+    "query": "Describe the people involved in the incident",
+    "expected_intent": "FIND_FRAME",
+    "video_id": "Abuse001_x264",
+    "ground_truth": "Physical description of individuals: clothing, appearance, actions."
   },
   {
     "query_id": "q003",
-    "query": "Describe what happened between 0:30 and 1:00",
-    "expected_intent": "SUMMARIZE_WINDOW",
-    "video_id": null,
-    "expected_time_range": {"start": 30.0, "end": 60.0},
-    "ground_truth": "Events occurring in the 30-60 second time window."
+    "query": "What happened at the very beginning of the video?",
+    "expected_intent": "FIND_FRAME",
+    "video_id": "Assault001_x264",
+    "ground_truth": "Description of initial scene setup and people positions."
   },
   {
     "query_id": "q004",
-    "query": "How many people are in the video?",
+    "query": "How many people are visible in the video?",
     "expected_intent": "COUNT",
-    "video_id": null,
-    "ground_truth": "A number describing the count of people."
+    "video_id": "Abuse001_x264",
+    "ground_truth": "A number describing the count of visible individuals."
   },
   {
     "query_id": "q005",
-    "query": "What color is the vehicle?",
+    "query": "Describe the suspect's clothing and appearance",
     "expected_intent": "FIND_FRAME",
-    "video_id": null,
-    "ground_truth": "Description of vehicle color."
+    "video_id": "Arrest002_x264",
+    "ground_truth": "Physical description: clothing color, build, hair, accessories."
   },
   {
     "query_id": "q006",
-    "query": "Describe the suspect's appearance",
+    "query": "Was there any weapon or dangerous object visible?",
     "expected_intent": "FIND_FRAME",
-    "video_id": null,
-    "ground_truth": "Physical description: clothing, build, hair, etc."
-  },
-  {
-    "query_id": "q007",
-    "query": "What time did the incident start?",
-    "expected_intent": "FIND_FRAME",
-    "video_id": null,
-    "ground_truth": "Timestamp of when the incident begins."
-  },
-  {
-    "query_id": "q008",
-    "query": "Was there any weapon visible?",
-    "expected_intent": "FIND_FRAME",
-    "video_id": null,
+    "video_id": "Assault001_x264",
     "ground_truth": "Yes/No answer with frame reference if weapon visible."
   },
   {
-    "query_id": "q009",
-    "query": "Give me a complete timeline of events",
+    "query_id": "q007",
+    "query": "Give me a complete timeline of events in this video",
     "expected_intent": "FIND_FRAME",
-    "video_id": null,
+    "video_id": "Arson001_x264",
     "ground_truth": "Chronological list of events with timestamps."
   },
   {
+    "query_id": "q008",
+    "query": "What vehicles are visible and what are their colors?",
+    "expected_intent": "FIND_FRAME",
+    "video_id": "Arson001_x264",
+    "ground_truth": "Description of vehicles: type, color, partial plates if visible."
+  },
+  {
+    "query_id": "q009",
+    "query": "Describe the setting and location of the video",
+    "expected_intent": "FIND_FRAME",
+    "video_id": "Abuse001_x264",
+    "ground_truth": "Description of environment: indoor/outdoor, lighting, location type."
+  },
+  {
     "query_id": "q010",
-    "query": "What did the officer say?",
-    "expected_intent": "FIND_AUDIO",
-    "video_id": null,
-    "ground_truth": "Transcribed speech from audio."
+    "query": "What is the duration and category of this video?",
+    "expected_intent": "FIND_VIDEO_META",
+    "video_id": "Abuse001_x264",
+    "ground_truth": "Video metadata including category and frame count."
   }
 ]

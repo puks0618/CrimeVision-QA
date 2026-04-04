@@ -71,6 +71,9 @@ def _node_retrieve(state: AgentState) -> AgentState:
 
     elif r.intent == "FIND_AUDIO":
         transcript_results = hybrid_search_transcripts(query, video_id=video_id, k=6)
+        # If no transcripts exist for this video, fall back to visual frame search
+        if not transcript_results:
+            frame_results = hybrid_search_frames(query, video_id=video_id, k=6)
 
     elif r.intent == "SUMMARIZE_WINDOW" and r.time_range:
         window = time_windowed_search(

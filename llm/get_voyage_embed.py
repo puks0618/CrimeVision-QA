@@ -13,7 +13,6 @@ No per-request fallback loops.
 
 import hashlib
 import sys
-from functools import lru_cache
 from pathlib import Path
 from typing import Any
 
@@ -55,11 +54,11 @@ class EmbeddingService:
         if not texts:
             return []
         if self.provider == "voyage":
-            return self._voyage_embed(texts)
+            return self._voyage_embed(texts, input_type="document")
         return self._fireworks_embed(texts)
 
     def embed_single(self, text: str) -> list[float]:
-        """Embed a single text. Uses LRU cache to avoid re-embedding duplicates."""
+        """Embed a single query text with caching."""
         return self._cached_embed_single(text)
 
     # ------------------------------------------------------------------
@@ -70,8 +69,12 @@ class EmbeddingService:
         key = hashlib.md5(text.encode()).hexdigest()
         if key in self._cache:
             return self._cache[key]
-        result = self.embed([text])[0]
-        self._cache[key] = result
+        # Use 'query' input_type for search queries (better retrieval quality)
+        if self.provider == "voyage":
+            result = self._voyage_embed([text], input_type="query")[0]
+        else:
+            result = self._fireworks_embed([text])[0]
+        self._put_cache(key, result)
         return result
 
     # Simple dict-based LRU (max 10k entries)
@@ -85,20 +88,38 @@ class EmbeddingService:
         self._cache[key] = value
 
     # ------------------------------------------------------------------
-    # Voyage AI implementation
+    # Voyage AI implementation (native SDK — no fallback)
     # ------------------------------------------------------------------
 
-    def _voyage_embed(self, texts: list[str]) -> list[list[float]]:
-        import voyageai  # imported lazily — only installed if Voyage is used
+    def _voyage_embed(self, texts: list[str], input_type: str = "document") -> list[list[float]]:
+        """Embed via Voyage AI native SDK. Retries up to 3× on rate-limit (429)."""
+        import time
+        import voyageai
         client = voyageai.Client(api_key=VOYAGE_API_KEY)
         all_embeddings: list[list[float]] = []
         for batch in _chunk(texts, _VOYAGE_BATCH):
-            result = client.embed(batch, model=VOYAGE_EMBED_MODEL, input_type="document")
-            all_embeddings.extend(result.embeddings)
+            last_exc = None
+            for attempt in range(3):
+                try:
+                    result = client.embed(batch, model=VOYAGE_EMBED_MODEL, input_type=input_type)
+                    all_embeddings.extend(result.embeddings)
+                    last_exc = None
+                    break
+                except Exception as exc:
+                    err = str(exc).lower()
+                    if "rate" in err or "429" in err or "limit" in err:
+                        wait = (attempt + 1) * 22  # 22s, 44s, 66s
+                        print(f"[Embeddings] Voyage rate-limited, waiting {wait}s (attempt {attempt+1}/3)...")
+                        time.sleep(wait)
+                        last_exc = exc
+                    else:
+                        raise  # non-rate-limit error — propagate immediately
+            if last_exc:
+                raise last_exc
         return all_embeddings
 
     # ------------------------------------------------------------------
-    # Fireworks GTE-large implementation
+    # Fireworks GTE-large implementation (used when EMBED_PROVIDER=fireworks)
     # ------------------------------------------------------------------
 
     def _fireworks_embed(self, texts: list[str]) -> list[list[float]]:

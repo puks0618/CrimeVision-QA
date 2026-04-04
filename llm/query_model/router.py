@@ -26,21 +26,37 @@ _RETRY_DELAYS = [1, 2]
 _INTENTS = ["FIND_AUDIO", "FIND_FRAME", "FIND_VIDEO_META", "SUMMARIZE_WINDOW", "COUNT"]
 _DEFAULT_INTENT = "FIND_FRAME"
 
-_SYSTEM_PROMPT = """You are a query classifier for a video surveillance QA system.
-Classify the user query into exactly ONE of these intents:
-- FIND_AUDIO: Questions about what was said, spoken, or heard
-- FIND_FRAME: Questions about what was seen, visible, or looked like
-- FIND_VIDEO_META: Questions about video metadata (duration, resolution, filename)
-- SUMMARIZE_WINDOW: Questions about a specific time range (e.g. "between 0:30 and 1:00")
-- COUNT: Questions asking how many (people, vehicles, events)
+_SYSTEM_PROMPT = """You are a query classifier for a surveillance video QA system.
+The video data contains VISUAL FRAMES (images) and optionally AUDIO TRANSCRIPTS.
+Classify the user query into exactly ONE intent:
+
+- FIND_FRAME: Default for MOST queries. Use for questions about visuals, appearance, actions,
+  scenes, events, descriptions, summaries, and anything about what is VISIBLE in the video.
+  Examples: "what happened", "describe the scene", "what are people doing", "who is in the video",
+  "describe the incident", "what did the person look like", "summarize the video"
+
+- FIND_AUDIO: ONLY for explicit audio/speech questions: "what was said", "what words",
+  "what was heard", "what did they say", "any shouting", "audio transcript"
+
+- FIND_VIDEO_META: Questions about file metadata only: "what is the filename", "how long is the video",
+  "what is the resolution", "when was this recorded"
+
+- SUMMARIZE_WINDOW: Questions with explicit time ranges: "between 0:30 and 1:00", "from 30s to 60s"
+
+- COUNT: Counting questions: "how many people", "how many vehicles", "how many times"
+
+Rules:
+- When in doubt, use FIND_FRAME (it is the correct default for surveillance analysis)
+- "Describe", "What happened", "What is", "Show", "Tell me about" → FIND_FRAME
+- Only use FIND_AUDIO if the query explicitly asks about spoken words or audio
 
 Also extract:
-- search_query: A cleaned version of the query optimized for retrieval
-- time_range: {{"start": float, "end": float}} in seconds if a time window is mentioned, else null
+- search_query: A concise retrieval-optimized version (remove filler words)
+- time_range: {{"start": float, "end": float}} seconds if explicit time window, else null
 - confidence: float 0.0-1.0
 
-Respond ONLY with valid JSON. No markdown, no code fences.
-Example: {{"intent": "FIND_FRAME", "search_query": "person in blue jersey", "time_range": null, "confidence": 0.95}}"""
+Respond ONLY with valid JSON. No markdown, no code fences, no explanation.
+Example: {{"intent": "FIND_FRAME", "search_query": "people fighting assault", "time_range": null, "confidence": 0.95}}"""
 
 
 @dataclass

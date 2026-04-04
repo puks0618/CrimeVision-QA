@@ -92,7 +92,7 @@ incidents_col = _db["previous_frame_incidents"]
 # ---------------------------------------------------------------------------
 # 5. Resolve EMBEDDING provider (once, not per-request)
 # ---------------------------------------------------------------------------
-_requested_embed = os.getenv("EMBED_PROVIDER", "voyage").lower()
+_requested_embed = os.getenv("EMBED_PROVIDER", "fireworks").lower()
 
 if _requested_embed == "voyage" and VOYAGE_API_KEY:
     EMBED_PROVIDER = "voyage"
@@ -105,7 +105,11 @@ else:
 # ---------------------------------------------------------------------------
 # 6. Resolve REASONER provider (once, not per-request)
 # ---------------------------------------------------------------------------
-if GEMINI_API_KEY:
+_requested_reasoner = os.getenv("REASONER_PROVIDER", "gemini").lower()
+
+if _requested_reasoner == "fireworks":
+    REASONER_PROVIDER = "fireworks"
+elif GEMINI_API_KEY:
     REASONER_PROVIDER = "gemini"
 else:
     print("[CONFIG] GEMINI_API_KEY not set -> using Fireworks Llama-3.3-70B for reasoning")

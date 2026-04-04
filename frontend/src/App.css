@@ -115,11 +115,13 @@ input, textarea { font-family: inherit; }
   letter-spacing: -0.5px;
   background: linear-gradient(135deg, #f1f1f5, #9ca3c0);
   -webkit-background-clip: text;
+  background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 .logo-qa {
   background: linear-gradient(135deg, #6366f1, #818cf8);
   -webkit-background-clip: text;
+  background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
@@ -324,6 +326,8 @@ input, textarea { font-family: inherit; }
   height: 100%;
   object-fit: contain;
   display: block;
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: crisp-edges;
 }
 .frame-overlay {
   position: absolute;
@@ -403,6 +407,8 @@ input, textarea { font-family: inherit; }
   aspect-ratio: 4/3;
   object-fit: cover;
   display: block;
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: crisp-edges;
 }
 .thumb span {
   font-family: 'JetBrains Mono', monospace;
