@@ -98,6 +98,7 @@ class ChatResponse(BaseModel):
 class VideoInfo(BaseModel):
     video_id: str
     filename: Optional[str] = None
+    video_url: Optional[str] = None
     category: Optional[str] = None
     duration_seconds: Optional[float] = None
     frame_count: Optional[int] = None
@@ -109,6 +110,16 @@ class FrameInfo(BaseModel):
     frame_number: int
     timestamp_seconds: float
     description: str
+
+
+_VIDEO_EXTENSIONS = (".mp4", ".mov", ".avi", ".mkv", ".webm")
+
+
+def _find_video_url(video_id: str) -> Optional[str]:
+    for ext in _VIDEO_EXTENSIONS:
+        if (_VIDEOS_DIR / f"{video_id}{ext}").exists():
+            return f"/videos/{video_id}{ext}"
+    return None
 
 
 # ---------------------------------------------------------------------------
@@ -164,7 +175,11 @@ async def chat(request: ChatRequest) -> ChatResponse:
 async def list_videos() -> list[VideoInfo]:
     """Return all videos that have been processed into the database."""
     docs = list(video_library_col.find({}, {"_id": 0}).limit(200))
-    return [VideoInfo(**d) for d in docs]
+    infos = []
+    for d in docs:
+        d["video_url"] = _find_video_url(d["video_id"])
+        infos.append(VideoInfo(**d))
+    return infos
 
 
 @app.get("/api/videos/{video_id}/frames", response_model=list[FrameInfo])

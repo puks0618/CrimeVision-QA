@@ -280,147 +280,32 @@ input, textarea { font-family: inherit; }
   gap: 0;
 }
 
-/* ----- Frame Section ------------------------------------------------- */
-.frame-section {
-  width: 420px;
+/* ----- Video Section ------------------------------------------------- */
+.video-section {
+  width: 480px;
   flex-shrink: 0;
   border-right: 1px solid var(--border);
   display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  background: var(--bg-1);
-}
-
-.frame-viewer {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  background: var(--bg-1);
-}
-.frame-viewer.empty {
   align-items: center;
   justify-content: center;
+  background: var(--bg-1);
+  padding: 12px;
 }
-.frame-placeholder {
-  text-align: center;
+
+.video-player {
+  width: 100%;
+  max-height: 100%;
+  border-radius: var(--radius-sm);
+  background: #000;
+  display: block;
+}
+
+.video-placeholder {
   color: var(--text-2);
+  font-size: 13px;
+  text-align: center;
   padding: 40px;
 }
-.frame-icon { font-size: 48px; display: block; margin-bottom: 16px; }
-.hint { font-size: 12px; margin-top: 6px; }
-
-/* Main frame display */
-.frame-main {
-  position: relative;
-  flex-shrink: 0;
-  background: #000;
-  aspect-ratio: 4/3;
-  overflow: hidden;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.frame-image {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-  display: block;
-  image-rendering: -webkit-optimize-contrast;
-  image-rendering: crisp-edges;
-}
-.frame-overlay {
-  position: absolute;
-  bottom: 0; left: 0; right: 0;
-  padding: 8px 12px;
-  background: linear-gradient(transparent, rgba(0,0,0,0.85));
-  display: flex;
-  justify-content: space-between;
-  font-size: 12px;
-  font-family: 'JetBrains Mono', monospace;
-  color: #fff;
-}
-.frame-ts { color: var(--accent-light); }
-.frame-num { color: var(--text-2); }
-
-.nav-arrow {
-  position: absolute;
-  top: 50%; transform: translateY(-50%);
-  background: rgba(0,0,0,0.6);
-  border: 1px solid var(--border-bright);
-  color: white;
-  width: 36px; height: 36px;
-  border-radius: 50%;
-  font-size: 22px;
-  display: flex; align-items: center; justify-content: center;
-  transition: var(--transition);
-  padding-bottom: 2px;
-}
-.nav-arrow:hover:not(:disabled) { background: var(--accent); border-color: var(--accent); }
-.nav-arrow:disabled { opacity: 0.2; cursor: default; }
-.nav-arrow.left { left: 10px; }
-.nav-arrow.right { right: 10px; }
-
-/* Frame description */
-.frame-desc {
-  display: flex;
-  gap: 8px;
-  padding: 10px 12px;
-  background: var(--bg-2);
-  border-top: 1px solid var(--border);
-  font-size: 12px;
-  color: var(--text-1);
-  line-height: 1.5;
-  overflow-y: auto;
-  max-height: 80px;
-  flex-shrink: 0;
-}
-.desc-icon { flex-shrink: 0; margin-top: 1px; }
-
-/* Thumbnail strip */
-.frame-strip {
-  display: flex;
-  gap: 4px;
-  padding: 8px;
-  overflow-x: auto;
-  background: var(--bg-2);
-  border-top: 1px solid var(--border);
-  scrollbar-width: thin;
-  scrollbar-color: var(--bg-4) transparent;
-  flex-shrink: 0;
-}
-.thumb {
-  flex-shrink: 0;
-  width: 72px;
-  background: transparent;
-  border: 2px solid transparent;
-  border-radius: 6px;
-  overflow: hidden;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  transition: var(--transition);
-  cursor: pointer;
-}
-.thumb img {
-  width: 100%;
-  aspect-ratio: 4/3;
-  object-fit: cover;
-  display: block;
-  image-rendering: -webkit-optimize-contrast;
-  image-rendering: crisp-edges;
-}
-.thumb span {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 9px;
-  color: var(--text-2);
-  text-align: center;
-  padding: 2px 0;
-  background: var(--bg-3);
-}
-.thumb:hover { border-color: var(--border-bright); }
-.thumb.active { border-color: var(--accent); }
-.thumb.active span { color: var(--accent-light); }
 
 /* ----- Chat Section -------------------------------------------------- */
 .chat-section {
@@ -743,12 +628,12 @@ input, textarea { font-family: inherit; }
 
 /* ----- Responsive ---------------------------------------------------- */
 @media (max-width: 900px) {
-  .frame-section { width: 320px; }
+  .video-section { width: 340px; }
   .tagline { display: none; }
 }
 @media (max-width: 640px) {
   .main-area { flex-direction: column; }
-  .frame-section { width: 100%; height: 45%; border-right: none; border-bottom: 1px solid var(--border); }
+  .video-section { width: 100%; height: 45%; border-right: none; border-bottom: 1px solid var(--border); }
   .sidebar { display: none; }
   .tagline { display: none; }
 }

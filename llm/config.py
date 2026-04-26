@@ -128,7 +128,7 @@ FIREWORKS_WHISPER_MODEL = "whisper-v3"
 FIREWORKS_WHISPER_ENDPOINT = "https://audio-prod.api.fireworks.ai/v1/audio/transcriptions"
 FIREWORKS_EMBED_MODEL = "thenlper/gte-large"
 FIREWORKS_EMBED_DIM = 768   # GTE-large outputs 768-dim, NOT 1024!
-FIREWORKS_ROUTER_MODEL = "accounts/fireworks/models/mixtral-8x22b-instruct"
+FIREWORKS_ROUTER_MODEL = "accounts/fireworks/models/llama-v3p3-70b-instruct"
 FIREWORKS_REASONER_MODEL = "accounts/fireworks/models/llama-v3p3-70b-instruct"
 FIREWORKS_API_BASE = "https://api.fireworks.ai/inference/v1"
 

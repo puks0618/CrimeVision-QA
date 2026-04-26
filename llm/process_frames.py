@@ -21,7 +21,7 @@ from tqdm import tqdm
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from llm.config import frames_col, video_library_col
-from llm.gen_frame_desc import describe_frame
+from llm.gen_frame_desc import describe_frame, _validate_description_quality
 from llm.get_voyage_embed import embedding_service
 
 _ZERO_VECTOR = [0.0] * 1024
@@ -30,31 +30,22 @@ _ZERO_VECTOR = [0.0] * 1024
 def _parse_timestamp(frame_file: str) -> float:
     """Extract timestamp in seconds from filename.
 
-    Supports:
-    - Original format: 'frame_0015_t30.0s.jpg'   -> 30.0
-    - Kaggle UCF format: 'Abuse001_x264_900.png'  -> 9.0 (frame_num / 100)
+    Expected format: 'frame_0015_t30.0s.jpg' -> 30.0
     """
     match = re.search(r"_t([\d.]+)s", frame_file)
     if match:
         return float(match.group(1))
-    # Kaggle format: last numeric segment is frame index (10fps = every 10 frames)
-    kaggle_match = re.search(r"_(\d+)\.png$", frame_file)
-    if kaggle_match:
-        frame_idx = int(kaggle_match.group(1))
-        return round(frame_idx / 10.0, 1)  # dataset sampled at ~10fps
     return 0.0
 
 
 def _parse_frame_number(frame_file: str) -> int:
-    """Extract frame number, supports both original and kaggle naming."""
-    # Original: frame_0015_t30.0s.jpg
-    orig = re.search(r"frame_(\d+)_", frame_file)
-    if orig:
-        return int(orig.group(1))
-    # Kaggle: Abuse001_x264_900.png — last number is frame index
-    kaggle = re.search(r"_(\d+)\.png$", frame_file)
-    if kaggle:
-        return int(kaggle.group(1))
+    """Extract frame number from filename.
+
+    Expected format: 'frame_0015_t30.0s.jpg' -> 15
+    """
+    match = re.search(r"frame_(\d+)_", frame_file)
+    if match:
+        return int(match.group(1))
     return 0
 
 
@@ -133,6 +124,10 @@ def process_video_frames(
             if emb == _ZERO_VECTOR:
                 errors += 1
                 continue  # Don't pollute index with zero-vector frames
+            
+            # Warn about low-quality descriptions but don't skip them
+            if not _validate_description_quality(desc):
+                print(f"⚠️  Low-quality description for {m['frame_file']}: {desc[:80]}...")
 
             doc = {
                 "video_id": video_id,

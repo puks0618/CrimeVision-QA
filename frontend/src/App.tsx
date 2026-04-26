@@ -8,16 +8,10 @@ const API_BASE = 'http://localhost:8000'
 interface VideoInfo {
   video_id: string
   filename?: string
+  video_url?: string
   category?: string
   duration_seconds?: number
   frame_count?: number
-}
-
-interface FrameInfo {
-  frame_file: string
-  frame_number: number
-  timestamp_seconds: number
-  description: string
 }
 
 interface Message {
@@ -97,121 +91,19 @@ function renderAnswerWithTimestamps(
 }
 
 // ---------------------------------------------------------------------------
-// FrameViewer Component
-// ---------------------------------------------------------------------------
-function FrameViewer({
-  videoId,
-  frames,
-  activeTimestamp,
-}: {
-  videoId: string
-  frames: FrameInfo[]
-  activeTimestamp?: number
-}) {
-  const [activeIdx, setActiveIdx] = useState(0)
-  const stripRef = useRef<HTMLDivElement>(null)
-
-  // Jump to closest frame when a timestamp is seeked
-  useEffect(() => {
-    if (activeTimestamp === undefined || frames.length === 0) return
-    let best = 0
-    let bestDiff = Infinity
-    frames.forEach((f, i) => {
-      const diff = Math.abs(f.timestamp_seconds - activeTimestamp)
-      if (diff < bestDiff) { bestDiff = diff; best = i }
-    })
-    setActiveIdx(best)
-    // Scroll the thumbnail strip
-    const el = stripRef.current?.children[best] as HTMLElement
-    el?.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' })
-  }, [activeTimestamp, frames])
-
-  if (frames.length === 0) {
-    return (
-      <div className="frame-viewer empty">
-        <div className="frame-placeholder">
-          <span className="frame-icon">🎬</span>
-          <p>No frames loaded yet</p>
-          <p className="hint">Select a video to browse its frames</p>
-        </div>
-      </div>
-    )
-  }
-
-  const active = frames[activeIdx]
-  const frameUrl = `${API_BASE}/frames/${videoId}/${active.frame_file}`
-
-  return (
-    <div className="frame-viewer">
-      {/* Main frame */}
-      <div className="frame-main">
-        <img
-          src={frameUrl}
-          alt={`Frame at ${formatTimestamp(active.timestamp_seconds)}`}
-          className="frame-image"
-          onError={(e) => { (e.target as HTMLImageElement).src = '' }}
-        />
-        <div className="frame-overlay">
-          <span className="frame-ts">⏱ {formatTimestamp(active.timestamp_seconds)}</span>
-          <span className="frame-num">Frame #{active.frame_number}</span>
-        </div>
-        {/* Navigation arrows */}
-        <button
-          className="nav-arrow left"
-          onClick={() => setActiveIdx(i => Math.max(0, i - 1))}
-          disabled={activeIdx === 0}
-        >‹</button>
-        <button
-          className="nav-arrow right"
-          onClick={() => setActiveIdx(i => Math.min(frames.length - 1, i + 1))}
-          disabled={activeIdx === frames.length - 1}
-        >›</button>
-      </div>
-
-      {/* Description */}
-      {active.description && (
-        <div className="frame-desc">
-          <span className="desc-icon">🔍</span>
-          <p>{active.description}</p>
-        </div>
-      )}
-
-      {/* Thumbnail strip */}
-      <div className="frame-strip" ref={stripRef}>
-        {frames.map((f, i) => (
-          <button
-            key={f.frame_file}
-            className={`thumb ${i === activeIdx ? 'active' : ''}`}
-            onClick={() => setActiveIdx(i)}
-            title={`${formatTimestamp(f.timestamp_seconds)}`}
-          >
-            <img
-              src={`${API_BASE}/frames/${videoId}/${f.frame_file}`}
-              alt=""
-              loading="lazy"
-            />
-            <span>{formatTimestamp(f.timestamp_seconds)}</span>
-          </button>
-        ))}
-      </div>
-    </div>
-  )
-}
-
-// ---------------------------------------------------------------------------
 // App
 // ---------------------------------------------------------------------------
 export default function App() {
   const [videos, setVideos] = useState<VideoInfo[]>([])
   const [selectedVideo, setSelectedVideo] = useState<string>('')
-  const [frames, setFrames] = useState<FrameInfo[]>([])
+  const [videoUrl, setVideoUrl] = useState<string | null>(null)
   const [strategy, setStrategy] = useState<Strategy>('zero_shot')
   const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
-  const [seekTs, setSeekTs] = useState<number | undefined>()
   const [sidebarOpen, setSidebarOpen] = useState(true)
   const messagesEndRef = useRef<HTMLDivElement>(null)
+  const videoRef = useRef<HTMLVideoElement>(null)
 
   // Fetch video list on mount
   useEffect(() => {
@@ -224,15 +116,11 @@ export default function App() {
       .catch(err => console.error('Failed to load videos:', err))
   }, [])
 
-  // Fetch frames when video changes
+  // Update video URL when selected video changes
   useEffect(() => {
-    if (!selectedVideo) return
-    setFrames([])
-    fetch(`${API_BASE}/api/videos/${selectedVideo}/frames`)
-      .then(r => r.ok ? r.json() : [])
-      .then((data: FrameInfo[]) => setFrames(data))
-      .catch(() => setFrames([]))
-  }, [selectedVideo])
+    const v = videos.find(v => v.video_id === selectedVideo)
+    setVideoUrl(v?.video_url ? `${API_BASE}${v.video_url}` : null)
+  }, [selectedVideo, videos])
 
   // Reset messages when video changes
   useEffect(() => {
@@ -245,7 +133,10 @@ export default function App() {
   }, [messages, loading])
 
   const seekToTimestamp = useCallback((seconds: number) => {
-    setSeekTs(seconds)
+    if (videoRef.current) {
+      videoRef.current.currentTime = seconds
+      videoRef.current.play()
+    }
   }, [])
 
   const sendMessage = async () => {
@@ -282,7 +173,7 @@ export default function App() {
 
       // Auto-seek to first timestamp
       if (data.timestamps?.length > 0) {
-        setSeekTs(data.timestamps[0])
+        seekToTimestamp(data.timestamps[0])
       }
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Unknown error'
@@ -369,15 +260,22 @@ export default function App() {
           </div>
         </aside>
 
-        {/* Main — chat + frame viewer */}
+        {/* Main — video player + chat */}
         <main className="main-area">
-          {/* Frame Viewer */}
-          <section className="frame-section">
-            <FrameViewer
-              videoId={selectedVideo}
-              frames={frames}
-              activeTimestamp={seekTs}
-            />
+          {/* Video Player */}
+          <section className="video-section">
+            {videoUrl ? (
+              <video
+                ref={videoRef}
+                src={videoUrl}
+                controls
+                className="video-player"
+              />
+            ) : (
+              <div className="video-placeholder">
+                {selectedVideo ? 'Video file not found in videos/ folder' : 'Select a video to begin'}
+              </div>
+            )}
           </section>
 
           {/* Chat Panel */}
