@@ -1,72 +1,237 @@
 [
   {
     "query_id": "q001",
-    "query": "What is happening in this video?",
+    "query": "Who is the main subject visible in this video?",
     "expected_intent": "FIND_FRAME",
-    "video_id": "Abuse001_x264",
-    "ground_truth": "Describes an abuse/assault incident captured on surveillance camera."
+    "video_id": "police_body_cam",
+    "expected_timestamps": [14.0, 20.0, 26.0],
+    "ground_truth": "Multiple civilians visible including an African American woman and a man in a pink polo shirt.",
+    "reference_answer": "Multiple civilians are visible in the body camera footage: an African American woman wearing a navy blue V-neck shirt, and a man wearing a bright pink or red polo shirt with a black cap and sunglasses. A female police officer in a dark uniform is also present as the camera operator.",
+    "reference_answer_concise": "An African American woman in a navy blue V-neck shirt and a man in a bright pink polo shirt with a black cap are visible. A female police officer in a dark uniform is the camera operator."
   },
   {
     "query_id": "q002",
-    "query": "Describe the people involved in the incident",
+    "query": "Describe the appearance and clothing of the officer in the video",
     "expected_intent": "FIND_FRAME",
-    "video_id": "Abuse001_x264",
-    "ground_truth": "Physical description of individuals: clothing, appearance, actions."
+    "video_id": "police_body_cam",
+    "expected_timestamps": [2.0, 8.0, 14.0],
+    "ground_truth": "Female officer in dark navy police uniform with POLICE lettering, badge, and duty belt.",
+    "reference_answer": "The officer appears to be female with a light or fair skin tone, approximately 25 to 45 years old. She is wearing a dark navy or black short-sleeved police uniform shirt with POLICE written in yellow or gold lettering across the chest, matching dark uniform pants, and a duty belt with equipment. A badge is visible on the left sleeve.",
+    "reference_answer_concise": "The female officer has a fair skin tone and wears a dark navy police shirt with POLICE in yellow lettering, dark uniform pants, and a duty belt. A badge is visible on her left sleeve."
   },
   {
     "query_id": "q003",
-    "query": "What happened at the very beginning of the video?",
+    "query": "What is happening in this video?",
     "expected_intent": "FIND_FRAME",
-    "video_id": "Assault001_x264",
-    "ground_truth": "Description of initial scene setup and people positions."
+    "video_id": "police_body_cam",
+    "expected_timestamps": [14.0, 20.0, 26.0, 32.0],
+    "ground_truth": "Police body camera footage of an officer interacting with civilians.",
+    "reference_answer": "The video is body camera footage recorded by a police officer during a civilian interaction. An African American woman is seen gesturing or speaking, and a man in a pink or red polo shirt with a black cap is also visible. The officer appears to be conducting an interview or field interaction.",
+    "reference_answer_concise": "The video shows body camera footage of a police officer conducting a civilian interaction. An African American woman and a man in a pink polo shirt with a black cap are visible."
   },
   {
     "query_id": "q004",
-    "query": "How many people are visible in the video?",
-    "expected_intent": "COUNT",
-    "video_id": "Abuse001_x264",
-    "ground_truth": "A number describing the count of visible individuals."
+    "query": "How many people are visible and describe them",
+    "expected_intent": "FIND_FRAME",
+    "video_id": "Train_10_Shooting",
+    "expected_timestamps": [2.0, 8.0, 14.0, 20.0],
+    "ground_truth": "Multiple people: elderly white male, two police officers, and several others.",
+    "reference_answer": "Multiple individuals are visible across the footage. An elderly white male approximately 60 to 75 years old wearing a black zip-up jacket appears early in the video. At least two individuals wearing dark police vests with POLICE visible on the shoulder are present, one of whom has visible facial injuries including scratches or cuts on the cheek. Later frames show at least five people.",
+    "reference_answer_concise": "Multiple people are visible: an elderly white male in a black zip-up jacket, and at least two officers in dark police vests with POLICE on the shoulder, one with visible facial injuries."
   },
   {
     "query_id": "q005",
-    "query": "Describe the suspect's clothing and appearance",
+    "query": "Is there any law enforcement presence in this video?",
     "expected_intent": "FIND_FRAME",
-    "video_id": "Arrest002_x264",
-    "ground_truth": "Physical description: clothing color, build, hair, accessories."
+    "video_id": "Train_10_Shooting",
+    "expected_timestamps": [8.0, 14.0, 20.0],
+    "ground_truth": "Yes, two officers with dark police vests, one with facial injuries.",
+    "reference_answer": "Yes, at least two individuals wearing dark police vests with POLICE visible on the shoulder and chest are present in the video. One of the officers has visible facial injuries including scratches or cuts on the cheek. The officers appear to be responding to or involved in an incident.",
+    "reference_answer_concise": "Yes, at least two officers in dark police vests with POLICE visible are present. One officer has visible facial injuries including scratches or cuts on the cheek."
   },
   {
     "query_id": "q006",
-    "query": "Was there any weapon or dangerous object visible?",
+    "query": "What is happening in this video?",
     "expected_intent": "FIND_FRAME",
-    "video_id": "Assault001_x264",
-    "ground_truth": "Yes/No answer with frame reference if weapon visible."
+    "video_id": "YTDown.com_YouTube_Raw-Video-Shootout-With-Store-Robbers_Media_-0jxfcgj1fc_001_480p",
+    "expected_timestamps": [2.0, 6.0, 10.0, 14.0],
+    "ground_truth": "A robbery or confrontation inside a convenience store with a hooded suspect.",
+    "reference_answer": "The video shows a robbery or violent confrontation inside a convenience store. A person wearing a dark hoodie with the hood up is crouching near the bottom shelves, while store personnel in an orange or red shirt behind the counter and other individuals in blue shirts are present. Multiple people are visible during the incident.",
+    "reference_answer_concise": "The video shows a robbery inside a convenience store. A person in a dark hoodie with the hood up crouches near the shelves while store personnel in an orange shirt are visible behind the counter."
   },
   {
     "query_id": "q007",
-    "query": "Give me a complete timeline of events in this video",
+    "query": "Describe the suspect's clothing and appearance",
     "expected_intent": "FIND_FRAME",
-    "video_id": "Arson001_x264",
-    "ground_truth": "Chronological list of events with timestamps."
+    "video_id": "YTDown.com_YouTube_Raw-Video-Shootout-With-Store-Robbers_Media_-0jxfcgj1fc_001_480p",
+    "expected_timestamps": [4.0, 8.0, 12.0],
+    "ground_truth": "Dark hoodie with hood up obscuring face, crouching near shelves.",
+    "reference_answer": "The suspect is wearing dark clothing, specifically a black or very dark hoodie or hooded jacket with the hood pulled up, completely obscuring their face, hair, and head. They are crouching or kneeling near the bottom shelves of the store. Age, skin tone, and ethnicity cannot be determined due to the hood and camera angle.",
+    "reference_answer_concise": "The suspect wears a black hoodie with the hood pulled up, completely obscuring the face. They are crouching near the bottom shelves; age and skin tone cannot be determined."
   },
   {
     "query_id": "q008",
-    "query": "What vehicles are visible and what are their colors?",
+    "query": "What is the setting and location of the incident?",
     "expected_intent": "FIND_FRAME",
-    "video_id": "Arson001_x264",
-    "ground_truth": "Description of vehicles: type, color, partial plates if visible."
+    "video_id": "YTDown.com_YouTube_Raw-Video-Shootout-With-Store-Robbers_Media_-0jxfcgj1fc_001_480p",
+    "expected_timestamps": [2.0, 6.0],
+    "ground_truth": "Interior of a convenience store with shelving, merchandise, and checkout counter.",
+    "reference_answer": "The incident takes place inside a convenience store. The interior shows store merchandise on shelving displays, a checkout counter area, and aisles. No vehicles are visible as it is an entirely indoor setting captured by store surveillance cameras.",
+    "reference_answer_concise": "The incident takes place inside a convenience store with shelving displays, merchandise, and a checkout counter, captured by store surveillance cameras."
   },
   {
     "query_id": "q009",
-    "query": "Describe the setting and location of the video",
+    "query": "Describe the people involved in the incident",
     "expected_intent": "FIND_FRAME",
-    "video_id": "Abuse001_x264",
-    "ground_truth": "Description of environment: indoor/outdoor, lighting, location type."
+    "video_id": "WhatsApp_Demo",
+    "expected_timestamps": [4.0, 10.0, 16.0],
+    "ground_truth": "Hooded suspect, clerk in blue shirt, and person in red shirt with blue cap.",
+    "reference_answer": "Multiple individuals are present: a person in a dark hoodie with the hood up crouching near the bottom shelves, a middle-aged person in a blue long-sleeve button-up shirt, a store clerk wearing a blue short-sleeve collared shirt near the counter with their back to the camera, and another individual in a red shirt with a light blue baseball cap.",
+    "reference_answer_concise": "A person in a dark hoodie crouches near the shelves. A store clerk in a blue collared shirt stands near the counter, and another person in a red shirt with a light blue baseball cap is also visible."
   },
   {
     "query_id": "q010",
-    "query": "What is the duration and category of this video?",
+    "query": "What type of incident is shown and what is the setting?",
+    "expected_intent": "FIND_FRAME",
+    "video_id": "WhatsApp_Demo",
+    "expected_timestamps": [2.0, 8.0, 14.0],
+    "ground_truth": "Robbery or confrontation in a convenience store interior captured by CCTV.",
+    "reference_answer": "The video shows a robbery or violent confrontation inside a convenience store captured by CCTV surveillance cameras. A hooded individual moves through the store while store staff in a blue collared shirt and another person in a red shirt with a light blue cap are visible near the checkout area.",
+    "reference_answer_concise": "The video shows a robbery inside a convenience store captured by CCTV. A hooded individual and store staff in a blue shirt near the checkout area are visible."
+  },
+  {
+    "query_id": "q011",
+    "query": "Are there any weapons visible in the footage?",
+    "expected_intent": "FIND_FRAME",
+    "video_id": "YTDown.com_YouTube_Raw-Video-Shootout-With-Store-Robbers_Media_-0jxfcgj1fc_001_480p",
+    "expected_timestamps": [6.0, 10.0],
+    "ground_truth": "Possible weapon involvement given the robbery context, but specific weapon visibility depends on frame clarity.",
+    "reference_answer": "Given the robbery context, weapon involvement is likely but specific weapons may not be clearly visible due to the surveillance camera angle and resolution. The hooded suspect's hand positions should be examined for any objects."
+  },
+  {
+    "query_id": "q012",
+    "query": "What direction is the suspect moving?",
+    "expected_intent": "FIND_FRAME",
+    "video_id": "WhatsApp_Demo",
+    "expected_timestamps": [6.0, 10.0, 14.0],
+    "ground_truth": "The hooded individual moves through the store aisles toward the merchandise shelves.",
+    "reference_answer": "The suspect in the dark hoodie appears to be moving through the store aisles, crouching near the bottom shelves. Their movement pattern suggests they are navigating between shelving units within the convenience store."
+  },
+  {
+    "query_id": "q013",
+    "query": "How many people can be counted in the video?",
+    "expected_intent": "COUNT",
+    "video_id": "police_body_cam",
+    "expected_timestamps": [14.0, 20.0, 26.0, 32.0],
+    "ground_truth": "At least 3 people: the officer (camera wearer), an African American woman, and a man in a pink polo shirt.",
+    "reference_answer": "At least 3 individuals can be counted: a female police officer wearing the body camera, an African American woman in a navy blue V-neck shirt, and a man wearing a bright pink or red polo shirt with a black cap. Additional individuals may appear in later frames."
+  },
+  {
+    "query_id": "q014",
+    "query": "How many officers are present in this video?",
+    "expected_intent": "COUNT",
+    "video_id": "Train_10_Shooting",
+    "expected_timestamps": [8.0, 14.0, 20.0],
+    "ground_truth": "At least two officers wearing dark police vests.",
+    "reference_answer": "At least two law enforcement officers are visible, both wearing dark police vests with POLICE markings on the shoulder and chest areas. One officer has visible facial injuries."
+  },
+  {
+    "query_id": "q015",
+    "query": "How many individuals are inside the store?",
+    "expected_intent": "COUNT",
+    "video_id": "YTDown.com_YouTube_Raw-Video-Shootout-With-Store-Robbers_Media_-0jxfcgj1fc_001_480p",
+    "expected_timestamps": [4.0, 8.0, 12.0],
+    "ground_truth": "At least 3-4 people: the hooded suspect, store personnel in an orange/red shirt, and individuals in blue shirts.",
+    "reference_answer": "At least 3 to 4 individuals are visible inside the store: the hooded suspect crouching near shelves, store personnel wearing an orange or red shirt behind the counter, and one or more individuals in blue shirts in the store area."
+  },
+  {
+    "query_id": "q016",
+    "query": "What was said during the interaction?",
+    "expected_intent": "FIND_AUDIO",
+    "video_id": "police_body_cam",
+    "expected_timestamps": [14.0, 20.0, 26.0],
+    "ground_truth": "Dialogue between the officer and civilians during the field interaction.",
+    "reference_answer": "The body camera captured audio of dialogue between the police officer and the civilians present. The specific conversation involves the officer conducting a field interaction or interview with the African American woman and the man in the pink polo shirt."
+  },
+  {
+    "query_id": "q017",
+    "query": "Is there any audio of shouting or distress?",
+    "expected_intent": "FIND_AUDIO",
+    "video_id": "Train_10_Shooting",
+    "expected_timestamps": [4.0, 10.0, 16.0],
+    "ground_truth": "Audio may contain distressed voices given the shooting incident context.",
+    "reference_answer": "Given the nature of the shooting incident, the audio may contain raised voices, shouting, or sounds of distress from individuals at the scene. The officers and the elderly male may be heard communicating during the response."
+  },
+  {
+    "query_id": "q018",
+    "query": "Are there any sounds of gunfire or alarms?",
+    "expected_intent": "FIND_AUDIO",
+    "video_id": "YTDown.com_YouTube_Raw-Video-Shootout-With-Store-Robbers_Media_-0jxfcgj1fc_001_480p",
+    "expected_timestamps": [6.0, 10.0, 14.0],
+    "ground_truth": "Given the robbery/shootout context, gunfire sounds may be present in the audio.",
+    "reference_answer": "The video title references a shootout, so gunfire sounds may be captured in the audio. Store alarms or shouting from store personnel and customers may also be audible during the confrontation."
+  },
+  {
+    "query_id": "q019",
+    "query": "Can you hear any verbal commands from officers?",
+    "expected_intent": "FIND_AUDIO",
+    "video_id": "police_body_cam",
+    "expected_timestamps": [8.0, 14.0, 20.0],
+    "ground_truth": "Officer verbal commands or instructions during the civilian interaction.",
+    "reference_answer": "The body camera audio likely captures verbal commands or instructions from the female police officer during her interaction with the civilians. Standard police verbal communication would include identification requests and directions."
+  },
+  {
+    "query_id": "q020",
+    "query": "What happened between 10 and 30 seconds in the video?",
+    "expected_intent": "SUMMARIZE_WINDOW",
+    "video_id": "police_body_cam",
+    "expected_timestamps": [10.0, 14.0, 20.0, 26.0],
+    "ground_truth": "The officer interacts with civilians including the man in the pink polo shirt.",
+    "reference_answer": "Between 10 and 30 seconds, the body camera shows the officer engaging with civilians. The man in the bright pink or red polo shirt with a black cap becomes visible around 14 seconds. The African American woman in the navy V-neck is also present. The officer appears to be conducting a field interview."
+  },
+  {
+    "query_id": "q021",
+    "query": "Summarize the first 15 seconds of the video",
+    "expected_intent": "SUMMARIZE_WINDOW",
+    "video_id": "Train_10_Shooting",
+    "expected_timestamps": [2.0, 4.0, 8.0, 12.0],
+    "ground_truth": "Early footage shows the elderly white male and initial scene of the incident.",
+    "reference_answer": "In the first 15 seconds, the footage shows an elderly white male approximately 60 to 75 years old wearing a black zip-up jacket. The initial scene establishes the location and the first individuals visible at the incident."
+  },
+  {
+    "query_id": "q022",
+    "query": "What events occur between 0 and 20 seconds?",
+    "expected_intent": "SUMMARIZE_WINDOW",
+    "video_id": "WhatsApp_Demo",
+    "expected_timestamps": [2.0, 6.0, 10.0, 16.0],
+    "ground_truth": "Initial frames show the convenience store interior with people visible and the incident beginning.",
+    "reference_answer": "Between 0 and 20 seconds, the CCTV footage shows the interior of the convenience store. The hooded suspect becomes visible moving through the store. Store staff in blue shirts and the individual in the red shirt with blue cap are present near the counter area as the incident unfolds."
+  },
+  {
+    "query_id": "q023",
+    "query": "What are the file details for this video?",
     "expected_intent": "FIND_VIDEO_META",
-    "video_id": "Abuse001_x264",
-    "ground_truth": "Video metadata including category and frame count."
+    "video_id": "police_body_cam",
+    "expected_timestamps": [],
+    "ground_truth": "Video metadata including filename, duration, and frame count.",
+    "reference_answer": "The video is identified as police_body_cam with approximately 29 processed frames extracted at 2-second intervals, suggesting a video duration of roughly 58 seconds."
+  },
+  {
+    "query_id": "q024",
+    "query": "How long is this video?",
+    "expected_intent": "FIND_VIDEO_META",
+    "video_id": "Train_10_Shooting",
+    "expected_timestamps": [],
+    "ground_truth": "Video duration based on frame count and extraction interval.",
+    "reference_answer": "Based on 13 processed frames extracted at 2-second intervals, the video duration is approximately 26 seconds."
+  },
+  {
+    "query_id": "q025",
+    "query": "What is the video ID and category?",
+    "expected_intent": "FIND_VIDEO_META",
+    "video_id": "WhatsApp_Demo",
+    "expected_timestamps": [],
+    "ground_truth": "Video ID is WhatsApp_Demo, category may be unset or Unknown.",
+    "reference_answer": "The video ID is WhatsApp_Demo. The category classification for this video may be listed as Unknown if it was not assigned during ingestion."
   }
 ]

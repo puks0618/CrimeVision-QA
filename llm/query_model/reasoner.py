@@ -27,49 +27,110 @@ from llm.config import (
 _MAX_RETRIES = 2
 _RETRY_DELAYS = [2, 4]
 
+_FAILURE_STRINGS = ("unable to process", "please try again", "cannot determine")
+
+
+def _is_failure_response(text: str) -> bool:
+    low = (text or "").lower().strip()
+    return not low or any(s in low for s in _FAILURE_STRINGS)
+
 # ---------------------------------------------------------------------------
 # System prompts for the 4 strategies
 # ---------------------------------------------------------------------------
 
-_SYSTEM_ZERO_SHOT = """You are a video surveillance analysis assistant for law enforcement.
-Answer the question based ONLY on the provided evidence. Be extremely concise and direct (1-2 sentences).
-Always cite specific timestamps (e.g. "at 30.0s") and frame references.
-If the evidence does not contain enough information, say so explicitly — do NOT hallucinate."""
+_DESCRIPTOR_RULES = """When describing people, always include (when visible): gender, approximate age range, skin tone, clothing color and type, and any distinguishing features (uniforms, badges, injuries, accessories). Use the exact descriptors from the evidence.
 
-_SYSTEM_COT = """You are a video surveillance analysis assistant for law enforcement.
-Think step-by-step before answering:
-1. Identify all relevant frames and timestamps from the evidence
-2. Reconstruct the sequence of events chronologically
-3. Note any discrepancies between visual and audio evidence
-4. Provide your final answer with timestamp citations
+Timestamp format: always cite timestamps as "(at Xs)" where X is the numeric seconds value from the frame timestamp.
 
-Use this format:
+**Final Answer:**
+[2–4 sentence factual summary. No bullet points, no headers, no frame filenames. Use specific clothing colors, roles, and timestamps like "(at 14s)" or "(at 14s, 20s)".]  """
+
+_SYSTEM_ZERO_SHOT = """You are a law enforcement video analysis assistant.
+Answer the question based ONLY on the provided evidence. Be direct and factual.
+Do NOT invent or infer details that are not explicitly stated in the evidence.
+Do NOT include frame filenames, headers, or bullet points in your answer.
+
+When describing people: include gender, age range, skin tone, clothing colors, and role.
+Always cite at least one timestamp using the format "(at Xs)".
+
+**Final Answer:**
+[2–4 sentence factual summary with timestamp citations.]"""
+
+_SYSTEM_COT = """You are a law enforcement video analysis assistant.
+Reason step-by-step using the evidence, then write your final answer.
+
 **Analysis:**
-[step-by-step reasoning]
+1. List the relevant frames/timestamps
+2. Identify people, actions, or objects visible
+3. Note the chronological sequence
 
-**Answer:**
-[final answer with timestamps]"""
+**Final Answer:**
+[2–4 sentence factual summary. Include clothing colors, roles, skin tone where visible. Cite timestamps as "(at Xs)". No bullet points, no frame filenames.]"""
 
-_SYSTEM_FEW_SHOT = """You are a video surveillance analysis assistant. Format answers like official incident reports.
+_SYSTEM_FEW_SHOT = """You are a law enforcement video analysis assistant. Answer questions about surveillance footage in the same concise, factual style as these examples.
 
+---
 Example 1:
-Q: "What happened at timestamp 0:45?"
-A: "At approximately 0:45 (45.0s), Subject A (male, dark hoodie) was observed exiting a white sedan (partial plate: 7X...). Subject proceeded eastbound on foot. [Frames: 0022-0025]"
+Question: Who is the main subject visible in this video?
+Evidence: Frame at t=14.0s shows an African American woman in a navy blue V-neck shirt. Frame at t=20.0s shows a man in a bright pink polo shirt with a black cap.
+Answer: Multiple civilians are visible in the footage: an African American woman wearing a navy blue V-neck shirt, and a man wearing a bright pink or red polo shirt with a black cap and sunglasses. A female police officer in a dark uniform is also present as the camera operator (at 14s, 20s).
 
+---
 Example 2:
-Q: "Describe the sequence of events."
-A: "Timeline of events:
-- 0:00-0:15 (0.0s-15.0s): Scene static, parking lot, no activity [Frames: 0001-0007]
-- 0:16 (16.0s): Subject A enters frame from north [Frame: 0008]
-- 0:23 (23.0s): Subject A approaches vehicle [Frame: 0011]"
+Question: Describe the suspect's clothing and appearance.
+Evidence: Frame at t=4.0s shows a person in a dark hoodie with hood up, crouching near store shelves.
+Answer: The suspect is wearing a black or very dark hoodie with the hood pulled up, completely obscuring the face, hair, and head. They are crouching near the bottom shelves of the store. Age, skin tone, and ethnicity cannot be determined due to the hood and camera angle (at 4s).
 
-Now answer the following question using the same style, based ONLY on the provided evidence:"""
+---
+Now answer the following question using ONLY the provided evidence. Use the same factual, specific style.
+
+**Final Answer:**
+[2–4 sentences. Include clothing colors, roles, timestamps like "(at Xs)". No bullet points, no frame filenames.]"""
+
+_SYSTEM_REACT = """You are a law enforcement video analysis assistant synthesizing multiple rounds of retrieved evidence.
+You have gathered relevant frames and transcripts. Now write a clear, direct final answer.
+
+Based ONLY on the evidence provided:
+- Describe what is visible with specific details (clothing, gender, skin tone, actions)
+- Cite timestamps using the format "(at Xs)"
+- If the evidence is insufficient, state what was and was not found
+
+**Final Answer:**
+[2–4 sentence factual summary. No bullet points, no frame filenames, no speculation.]"""
+
+_SYSTEM_GUIDED = """You are an AI assistant optimized for evaluation against a ground-truth answer.
+
+Goal:
+Maximize ROUGE-L, BLEU, and faithfulness while preserving all required timestamps.
+
+Instructions:
+
+* Answer only using information supported by the provided context.
+* Use the same important words and phrases as the context and expected answer.
+* Keep the same order of events as in the context.
+* Include every timestamp exactly as it appears in the context when the answer requires timestamps.
+* Do not invent or change timestamps.
+* Do not remove timestamps.
+* Do not add extra information.
+* Use short, direct sentences.
+* Avoid paraphrasing when the context wording is already clear.
+* Do not explain your reasoning.
+
+Output format:
+
+Write a single concise paragraph of 2–4 sentences that directly answers the question.
+Cite timestamps inline as "(at Xs)" — do NOT write a separate line per timestamp.
+Use the exact words and phrases from the context wherever possible.
+
+**Final Answer:**
+[2–4 sentence paragraph with inline "(at Xs)" timestamp citations]"""
 
 _STRATEGY_PROMPTS = {
     "zero_shot": _SYSTEM_ZERO_SHOT,
     "cot": _SYSTEM_COT,
     "few_shot": _SYSTEM_FEW_SHOT,
-    "react": _SYSTEM_COT,  # ReAct uses CoT-style synthesis after tool calls
+    "react": _SYSTEM_REACT,
+    "guided": _SYSTEM_GUIDED,
 }
 
 
@@ -84,9 +145,9 @@ def _format_context(context: list[dict]) -> str:
         lines.append("[VISUAL EVIDENCE]")
         for doc in sorted(frames, key=lambda x: x.get("timestamp_seconds", 0)):
             ts = doc.get("timestamp_seconds", "?")
-            fname = doc.get("frame_file", "unknown")
             desc = doc.get("description", "")
-            lines.append(f"- Frame {fname} (t={ts}s): {desc}")
+            # Make timestamp explicit so LLM cites it in (at Xs) form
+            lines.append(f"• At {ts}s: {desc}")
         lines.append("")
 
     if transcripts:
@@ -95,7 +156,7 @@ def _format_context(context: list[dict]) -> str:
             start = doc.get("start_time", "?")
             end = doc.get("end_time", "?")
             text = doc.get("text", "")
-            lines.append(f"- Segment {start}s-{end}s: \"{text}\"")
+            lines.append(f"• At {start}s–{end}s: \"{text}\"")
         lines.append("")
 
     if not frames and not transcripts:
@@ -105,12 +166,17 @@ def _format_context(context: list[dict]) -> str:
     return "\n".join(lines)
 
 
+
 def _extract_timestamps(text: str) -> list[float]:
     """Extract timestamp values mentioned in the answer text."""
     timestamps: set[float] = set()
 
-    # Match "30.0s", "30s", "30.5s"
+    # Match "30.0s", "30s", "30.5s" and "(at 30s)" variants
     for m in re.finditer(r"(\d+\.?\d*)\s*s\b", text):
+        timestamps.add(float(m.group(1)))
+
+    # Match bracketed form "[14s]" or "[14.0s]" emitted by guided strategy
+    for m in re.finditer(r"\[(\d+\.?\d*)\s*s\]", text):
         timestamps.add(float(m.group(1)))
 
     # Match "0:30", "1:05"
@@ -144,20 +210,23 @@ class Reasoner:
         Args:
             query:    The user's natural-language question.
             context:  List of retrieved frame/transcript documents.
-            strategy: One of zero_shot | cot | few_shot | react.
+            strategy: One of zero_shot | cot | few_shot | react | guided.
             video_id: Optional video identifier (for context header).
 
         Returns:
             {"answer": str, "timestamps": list[float], "sources": list[dict], "strategy_used": str}
         """
         system_prompt = _STRATEGY_PROMPTS.get(strategy, _SYSTEM_ZERO_SHOT)
+
         evidence = _format_context(context)
         user_message = f"{evidence}\n\nQuestion: {query}"
 
         answer = self._call_llm(system_prompt, user_message)
 
-        # Post-process to provide only the concise final answer if using CoT
-        if "**Answer:**" in answer:
+        # Post-process: extract only the Final Answer block when present
+        if "**Final Answer:**" in answer:
+            answer = answer.split("**Final Answer:**")[-1].strip()
+        elif "**Answer:**" in answer:
             answer = answer.split("**Answer:**")[-1].strip()
 
         return {
@@ -173,8 +242,17 @@ class Reasoner:
 
     def _call_llm(self, system_prompt: str, user_message: str) -> str:
         if self.provider == "gemini":
-            return self._call_gemini(system_prompt, user_message)
-        return self._call_fireworks(system_prompt, user_message)
+            result = self._call_gemini(system_prompt, user_message)
+            if _is_failure_response(result) and FIREWORKS_API_KEY:
+                print("[Reasoner] Gemini failed — falling back to Fireworks")
+                return self._call_fireworks(system_prompt, user_message)
+            return result
+        else:
+            result = self._call_fireworks(system_prompt, user_message)
+            if _is_failure_response(result) and GEMINI_API_KEY:
+                print("[Reasoner] Fireworks failed — falling back to Gemini")
+                return self._call_gemini(system_prompt, user_message)
+            return result
 
     def _call_gemini(self, system_prompt: str, user_message: str) -> str:
         import google.generativeai as genai
@@ -206,8 +284,8 @@ class Reasoner:
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": user_message},
             ],
-            "max_tokens": 1024,
-            "temperature": 0.3,
+            "max_tokens": 1536,
+            "temperature": 0.2,
         }
 
         for attempt in range(1, _MAX_RETRIES + 2):

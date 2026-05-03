@@ -21,6 +21,7 @@ from pymongo.errors import OperationFailure
 
 from llm.config import (
     DB_NAME,
+    EMBED_DIM,
     frames_col,
     transcripts_col,
     video_library_col,
@@ -117,7 +118,7 @@ Name:       vs_frames_index
     {{
       "type": "vector",
       "path": "embedding",
-      "numDimensions": 1024,
+      "numDimensions": {embed_dim},
       "similarity": "cosine"
     }}
   ]
@@ -132,7 +133,7 @@ Name:       vs_transcripts_index
     {{
       "type": "vector",
       "path": "embedding",
-      "numDimensions": 1024,
+      "numDimensions": {embed_dim},
       "similarity": "cosine"
     }}
   ]
@@ -175,7 +176,7 @@ def setup_database() -> None:
     print("\nRegular Indexes:")
     create_regular_indexes()
 
-    print(_VECTOR_INDEX_INSTRUCTIONS.format(db_name=DB_NAME))
+    print(_VECTOR_INDEX_INSTRUCTIONS.format(db_name=DB_NAME, embed_dim=EMBED_DIM))
 
 
 if __name__ == "__main__":

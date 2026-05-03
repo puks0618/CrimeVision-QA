@@ -11,7 +11,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from llm.config import frames_col, transcripts_col, DB_NAME
+from llm.config import frames_col, transcripts_col, DB_NAME, EMBED_DIM
 
 
 def cleanup_zero_vectors():

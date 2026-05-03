@@ -28,7 +28,7 @@ from llm.retreival_2 import (
     time_windowed_search,
 )
 
-_MAX_ITERATIONS = 3  # prevents infinite ReAct loops
+_MAX_ITERATIONS = 5  # prevents infinite ReAct loops
 
 
 # ---------------------------------------------------------------------------
@@ -67,13 +67,13 @@ def _node_retrieve(state: AgentState) -> AgentState:
     video_metadata = None
 
     if r.intent == "FIND_FRAME":
-        frame_results = hybrid_search_frames(query, video_id=video_id, k=6)
+        frame_results = hybrid_search_frames(query, video_id=video_id, k=8)
 
     elif r.intent == "FIND_AUDIO":
-        transcript_results = hybrid_search_transcripts(query, video_id=video_id, k=6)
+        transcript_results = hybrid_search_transcripts(query, video_id=video_id, k=8)
         # If no transcripts exist for this video, fall back to visual frame search
         if not transcript_results:
-            frame_results = hybrid_search_frames(query, video_id=video_id, k=6)
+            frame_results = hybrid_search_frames(query, video_id=video_id, k=8)
 
     elif r.intent == "SUMMARIZE_WINDOW" and r.time_range:
         window = time_windowed_search(
@@ -87,7 +87,7 @@ def _node_retrieve(state: AgentState) -> AgentState:
 
     elif r.intent == "COUNT":
         # Fetch more frames for counting
-        frame_results = hybrid_search_frames(query, video_id=video_id, k=10)
+        frame_results = hybrid_search_frames(query, video_id=video_id, k=12)
 
     elif r.intent == "FIND_VIDEO_META":
         video_metadata = video_library_col.find_one(
@@ -96,8 +96,8 @@ def _node_retrieve(state: AgentState) -> AgentState:
 
     else:
         # Fallback: search both
-        frame_results = hybrid_search_frames(query, video_id=video_id, k=5)
-        transcript_results = hybrid_search_transcripts(query, video_id=video_id, k=3)
+        frame_results = hybrid_search_frames(query, video_id=video_id, k=7)
+        transcript_results = hybrid_search_transcripts(query, video_id=video_id, k=5)
 
     return {
         **state,
@@ -131,8 +131,13 @@ def _needs_more_info(state: AgentState) -> bool:
     if state["iteration"] >= _MAX_ITERATIONS:
         return False
     answer = (state["final_answer"] or {}).get("answer", "")
-    # Simple heuristic: if answer says "not enough information", try again
-    return "not enough" in answer.lower() or "cannot determine" in answer.lower()
+    # Loop back if answer is too vague or too short to be useful
+    low = answer.lower()
+    if "not enough" in low or "cannot determine" in low:
+        return True
+    if len(answer.split()) < 30:
+        return True
+    return False
 
 
 # ---------------------------------------------------------------------------
@@ -206,7 +211,11 @@ async def run_agent(
     }
 
 
-def run_agent_sync(query: str, video_id: str, strategy: str = "zero_shot") -> dict:
+def run_agent_sync(
+    query: str,
+    video_id: str,
+    strategy: str = "zero_shot",
+) -> dict:
     """Synchronous wrapper around run_agent for use in CLI/scripts."""
     import asyncio
     return asyncio.run(run_agent(query, video_id, strategy))

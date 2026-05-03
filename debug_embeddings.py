@@ -15,7 +15,7 @@ from pprint import pprint
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from llm.config import frames_col, transcripts_col, EMBED_PROVIDER
+from llm.config import frames_col, transcripts_col, EMBED_PROVIDER, EMBED_DIM
 from llm.gen_frame_desc import describe_frame
 from llm.get_voyage_embed import embedding_service
 from llm.inference import semantic_search_frames
@@ -101,14 +101,13 @@ def diagnose_embedding_dimension(video_id: str) -> dict:
     print(f"Actual Dimension: {actual_dim}")
     
     if EMBED_PROVIDER == "voyage":
-        expected_dim = 1024
         model_name = "voyage-3-large"
     elif EMBED_PROVIDER == "fireworks":
-        expected_dim = 768
         model_name = "gte-large"
     else:
-        expected_dim = 1024
         model_name = "unknown"
+    
+    expected_dim = EMBED_DIM
     
     print(f"Expected Dimension: {expected_dim} (for {model_name})")
     

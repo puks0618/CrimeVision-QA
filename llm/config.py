@@ -133,7 +133,11 @@ FIREWORKS_REASONER_MODEL = "accounts/fireworks/models/llama-v3p3-70b-instruct"
 FIREWORKS_API_BASE = "https://api.fireworks.ai/inference/v1"
 
 VOYAGE_EMBED_MODEL = "voyage-3-large"
+VOYAGE_EMBED_DIM = 1024  # voyage-3-large outputs 1024-dim
 GEMINI_REASONER_MODEL = "gemini-2.5-flash"
+
+# Active embedding dimension (resolved from EMBED_PROVIDER at startup)
+EMBED_DIM: int = VOYAGE_EMBED_DIM if EMBED_PROVIDER == "voyage" else FIREWORKS_EMBED_DIM
 
 # ---------------------------------------------------------------------------
 # 8. Startup summary
@@ -141,7 +145,8 @@ GEMINI_REASONER_MODEL = "gemini-2.5-flash"
 print("\n[CrimeVision-QA Config]")
 print(f"  MongoDB:    Connected ({MONGODB_URI.split('@')[-1].split('/')[0]})")
 print(f"  Embeddings: {EMBED_PROVIDER.capitalize()}"
-      f" ({'Voyage ' + VOYAGE_EMBED_MODEL if EMBED_PROVIDER == 'voyage' else 'Fireworks ' + FIREWORKS_EMBED_MODEL})")
+      f" ({'Voyage ' + VOYAGE_EMBED_MODEL if EMBED_PROVIDER == 'voyage' else 'Fireworks ' + FIREWORKS_EMBED_MODEL})"
+      f" ({EMBED_DIM}-dim)")
 print(f"  Reasoner:   {REASONER_PROVIDER.capitalize()}"
       f" ({'Gemini ' + GEMINI_REASONER_MODEL if REASONER_PROVIDER == 'gemini' else 'Fireworks Llama-3.3-70B'})")
 print(f"  Vision:     Fireworks {FIREWORKS_VISION_MODEL.split('/')[-1]}")

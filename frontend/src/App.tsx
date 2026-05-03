@@ -102,8 +102,13 @@ export default function App() {
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
   const [sidebarOpen, setSidebarOpen] = useState(true)
+  const [uploadJobId, setUploadJobId] = useState<string | null>(null)
+  const [uploadStatus, setUploadStatus] = useState<{
+    status: string; progress: number; message: string; video_id: string; error?: string
+  } | null>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const videoRef = useRef<HTMLVideoElement>(null)
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   // Fetch video list on mount
   useEffect(() => {
@@ -131,6 +136,52 @@ export default function App() {
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages, loading])
+
+  // Upload handler
+  const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    e.target.value = ''  // reset so the same file can be re-selected
+
+    const form = new FormData()
+    form.append('file', file)
+    form.append('category', 'Unknown')
+
+    try {
+      const resp = await fetch(`${API_BASE}/api/upload`, { method: 'POST', body: form })
+      const data = await resp.json()
+      if (!resp.ok) throw new Error(data.detail || 'Upload failed')
+      setUploadJobId(data.job_id)
+      setUploadStatus({ status: 'queued', progress: 0, message: 'Queued…', video_id: data.video_id })
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Upload failed'
+      setUploadStatus({ status: 'error', progress: 0, message: msg, video_id: '' })
+    }
+  }
+
+  // Poll upload job status
+  useEffect(() => {
+    if (!uploadJobId) return
+    const id = setInterval(async () => {
+      try {
+        const resp = await fetch(`${API_BASE}/api/upload/status/${uploadJobId}`)
+        const data = await resp.json()
+        setUploadStatus(data)
+        if (data.status === 'done') {
+          clearInterval(id)
+          setUploadJobId(null)
+          fetch(`${API_BASE}/api/videos`)
+            .then(r => r.json())
+            .then((vids: VideoInfo[]) => {
+              setVideos(vids)
+              setSelectedVideo(data.video_id)
+            })
+        }
+        if (data.status === 'error') clearInterval(id)
+      } catch { /* network hiccup — keep polling */ }
+    }, 3000)
+    return () => clearInterval(id)
+  }, [uploadJobId])
 
   const seekToTimestamp = useCallback((seconds: number) => {
     if (videoRef.current) {
@@ -230,8 +281,42 @@ export default function App() {
         <aside className={`sidebar ${sidebarOpen ? '' : 'collapsed'}`}>
           <div className="sidebar-header">
             <span>Processed Videos</span>
-            <span className="count-badge">{videos.length}</span>
+            <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+              <span className="count-badge">{videos.length}</span>
+              <button
+                className="upload-btn"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={!!uploadJobId}
+                title="Upload a video to ingest"
+              >
+                {uploadJobId ? '⏳' : '+ Upload'}
+              </button>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="video/*"
+                style={{ display: 'none' }}
+                onChange={handleUpload}
+              />
+            </div>
           </div>
+
+          {uploadStatus && uploadStatus.status !== 'done' && (
+            <div className="upload-progress">
+              <div className="upload-progress-label">
+                <span className="upload-vid-name">{uploadStatus.video_id || 'Uploading…'}</span>
+                <span>{uploadStatus.progress}%</span>
+              </div>
+              <div className="upload-progress-bar">
+                <div className="upload-progress-fill" style={{ width: `${uploadStatus.progress}%` }} />
+              </div>
+              <div className="upload-progress-msg">{uploadStatus.message}</div>
+              {uploadStatus.status === 'error' && (
+                <div className="upload-error">{uploadStatus.error || 'Pipeline failed — check backend logs'}</div>
+              )}
+            </div>
+          )}
+
           <div className="video-list">
             {videos.length === 0 ? (
               <div className="empty-list">

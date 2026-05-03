@@ -20,11 +20,11 @@ from pathlib import Path
 from tqdm import tqdm
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
-from llm.config import frames_col, video_library_col
+from llm.config import frames_col, video_library_col, EMBED_DIM
 from llm.gen_frame_desc import describe_frame, _validate_description_quality
 from llm.get_voyage_embed import embedding_service
 
-_ZERO_VECTOR = [0.0] * 1024
+_ZERO_VECTOR = [0.0] * EMBED_DIM
 
 
 def _parse_timestamp(frame_file: str) -> float:

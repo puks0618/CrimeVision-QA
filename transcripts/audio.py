@@ -21,6 +21,7 @@ import requests
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from llm.config import (
+    EMBED_DIM,
     FIREWORKS_API_KEY,
     FIREWORKS_WHISPER_ENDPOINT,
     FIREWORKS_WHISPER_MODEL,
@@ -122,7 +123,7 @@ def store_transcript_segments(
         embeddings = embedding_service.embed(texts)
     except Exception as exc:
         print(f"[Whisper] Embedding failed: {exc} — storing with zero vectors")
-        embeddings = [[0.0] * 1024] * len(texts)
+        embeddings = [[0.0] * EMBED_DIM] * len(texts)
 
     docs = []
     now = datetime.now(timezone.utc)

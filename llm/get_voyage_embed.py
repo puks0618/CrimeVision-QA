@@ -20,6 +20,7 @@ import requests
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from llm.config import (
+    EMBED_DIM,
     EMBED_PROVIDER,
     FIREWORKS_API_KEY,
     FIREWORKS_API_BASE,
@@ -30,7 +31,6 @@ from llm.config import (
 
 _VOYAGE_BATCH = 128   # max texts per Voyage API call
 _FIREWORKS_BATCH = 96 # max texts per Fireworks embedding call
-_EMBED_DIM = 1024     # expected output dimension
 
 
 def _chunk(lst: list, size: int) -> list[list]:
@@ -38,7 +38,7 @@ def _chunk(lst: list, size: int) -> list[list]:
 
 
 class EmbeddingService:
-    """Embeds text into 1024-dim vectors using the provider chosen at startup."""
+    """Embeds text into vectors using the provider chosen at startup."""
 
     def __init__(self) -> None:
         # Provider already resolved in config.py; we just use it.
@@ -58,12 +58,12 @@ class EmbeddingService:
         else:
             embeddings = self._fireworks_embed(texts)
         # Validate dimensions on first batch to catch provider/index mismatches early
-        if embeddings and len(embeddings[0]) != _EMBED_DIM:
+        if embeddings and len(embeddings[0]) != EMBED_DIM:
             raise ValueError(
                 f"Embedding dimension mismatch: got {len(embeddings[0])}, "
-                f"expected {_EMBED_DIM}. "
+                f"expected {EMBED_DIM}. "
                 f"If using EMBED_PROVIDER=fireworks, GTE-large outputs 768-dim "
-                f"but MongoDB index expects {_EMBED_DIM}-dim."
+                f"but MongoDB index expects {EMBED_DIM}-dim."
             )
         return embeddings
 

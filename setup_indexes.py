@@ -20,6 +20,9 @@ load_dotenv(Path(__file__).parent / ".env")
 MONGODB_URI = os.environ["MONGODB_URI"]
 DB_NAME = os.getenv("MONGODB_DB_NAME", "video_intelligence")
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from llm.config import EMBED_DIM
+
 INDEXES = [
     {
         "collection": "video_intelligence",
@@ -29,7 +32,7 @@ INDEXES = [
                 {
                     "type": "vector",
                     "path": "embedding",
-                    "numDimensions": 1024,
+                    "numDimensions": EMBED_DIM,
                     "similarity": "cosine",
                 },
                 {
@@ -47,7 +50,7 @@ INDEXES = [
                 {
                     "type": "vector",
                     "path": "embedding",
-                    "numDimensions": 1024,
+                    "numDimensions": EMBED_DIM,
                     "similarity": "cosine",
                 },
                 {

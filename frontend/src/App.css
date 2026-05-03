@@ -205,6 +205,54 @@ input, textarea { font-family: inherit; }
   font-size: 11px;
 }
 
+.upload-btn {
+  font-size: 10px;
+  padding: 2px 7px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-bright);
+  background: var(--accent);
+  color: #fff;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: opacity var(--transition);
+}
+.upload-btn:hover:not(:disabled) { opacity: 0.85; }
+.upload-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+
+.upload-progress {
+  padding: 8px 12px 10px;
+  border-bottom: 1px solid var(--border);
+  font-size: 11px;
+  flex-shrink: 0;
+}
+.upload-progress-label {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 5px;
+  color: var(--text-1);
+  font-weight: 500;
+}
+.upload-vid-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 140px;
+}
+.upload-progress-bar {
+  height: 4px;
+  background: var(--bg-4);
+  border-radius: 2px;
+  overflow: hidden;
+  margin-bottom: 5px;
+}
+.upload-progress-fill {
+  height: 100%;
+  background: var(--accent);
+  transition: width 0.4s ease;
+}
+.upload-progress-msg { color: var(--text-2); }
+.upload-error { color: #ef4444; margin-top: 3px; }
+
 .video-list {
   flex: 1;
   overflow-y: auto;
