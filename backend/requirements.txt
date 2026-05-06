@@ -1,6 +1,28 @@
-# Backend-specific deps (subset of root requirements.txt)
+# Backend-specific deps
 fastapi==0.115.5
 uvicorn[standard]==0.32.1
 python-multipart==0.0.12
 python-dotenv==1.0.1
 pymongo[srv]==4.9.2
+motor==3.6.0
+
+# LLM orchestration
+langchain==0.3.7
+langchain-community==0.3.7
+langchain-google-genai==2.0.7
+langgraph==0.2.50
+
+# AI/ML APIs
+fireworks-ai==0.15.4
+voyageai==0.3.2
+google-generativeai==0.8.3
+
+# Data / utils
+requests==2.32.3
+numpy==1.26.4
+tqdm==4.67.1
+
+# Video / Audio (needed for some local imports, though backend may not extract video directly)
+opencv-python-headless==4.10.0.84
+Pillow==11.0.0
+ffmpeg-python==0.2.0
