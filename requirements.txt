@@ -1,0 +1,54 @@
+# ================================================================
+# SafeGuard AI – Root Python dependencies
+# Install with:  pip install -r requirements.txt
+# Python:        3.10+
+# ================================================================
+
+# --- Web framework ---
+fastapi==0.115.5
+uvicorn[standard]==0.32.1
+python-multipart==0.0.12
+
+# --- LLM orchestration ---
+langchain==0.3.7
+langchain-community==0.3.7
+langchain-google-genai==2.0.7
+langgraph==0.2.50
+
+# --- MongoDB ---
+pymongo[srv]==4.9.2
+motor==3.6.0
+
+# --- AI/ML APIs ---
+fireworks-ai==0.15.4
+voyageai==0.3.2
+google-generativeai==0.8.3
+
+# --- Video / Audio processing ---
+opencv-python==4.10.0.84
+Pillow==11.0.0
+ffmpeg-python==0.2.0
+
+# --- Data / utils ---
+python-dotenv==1.0.1
+requests==2.32.3
+tqdm==4.67.1
+numpy==1.26.4
+kagglehub==0.3.4
+
+# --- Fine-tuning (optional – install separately if GPU available) ---
+# torch>=2.1.0
+# transformers>=4.45.0
+# peft>=0.13.0
+# trl>=0.11.0
+# bitsandbytes>=0.44.0
+# datasets>=3.0.0
+# accelerate>=1.0.0
+
+# --- Evaluation ---
+ragas==0.2.6
+rouge-score==0.1.2
+bert-score==0.3.13
+nltk==3.9.1
+sentence-transformers==3.3.1
+matplotlib==3.9.2
